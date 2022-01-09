@@ -14,4 +14,4 @@ Steps to produce:
   <li>Enjoy!!</li>
 </ol>
 
-<i>Pls star this repo, If you liked my work</i>
+<i>Pls star this repo, If you liked my work&#128516</i>
