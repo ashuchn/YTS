@@ -22,8 +22,9 @@ curl_close($curl);
 $response = json_decode($resp,TRUE); 
 
 $data = $response['data']['movie'];
+$torrents = $response['data']['movie']['torrents'];
 $mname = $data['title'];
-// print_r($data);exit;
+// print_r($torrents);exit;
 // echo $data['background_image_original'];exit;
 // print_r($data);
 ?>
@@ -46,6 +47,8 @@ $mname = $data['title'];
     <link rel="stylesheet" href="../Assets/bs/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../Assets/tabs.css">
+<script src="../Assets/tabs.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@1,500&display=swap" rel="stylesheet">
     <!-- include font awesome -->
     <script src="https://use.fontawesome.com/d02afb5430.js"></script>
@@ -53,11 +56,8 @@ $mname = $data['title'];
 </head>
 <body style="background-color: #CDFDB8;">
     <div class="container-fluid pt-2 ">
-    <div class="alert alert-warning alert-dismissible fade show justify-content-center" role="alert">
-    <marquee width="" direction="left" height=" ">
-        Work in Progress
-    </marquee>
-    </div>
+        <?php include 'loading.php'; ?>
+
         <nav class="navbar navbar-expand-lg navbar-light navbar-fixed-top " style="background-color: #e3f2fd;">
             <a class="navbar-brand" href="#">
                 <img src="../images/logo.png" alt="" width="100" height="70" srcset="">
@@ -116,13 +116,14 @@ switch($file_name)
 
     </div>
 
-    <div class="container-fluid torrent bg-dark" >
-    <h1 class="display-6 text-white"><?php echo $mname; ?></h1>
+    <div class="container-fluid torrent bg-dark " >
+    
         <div class="row" style="font-family: 'Roboto Mono', monospace;">
             <div class="col-4">
                 <img src="<?php echo $data['medium_cover_image']; ?>" alt="" >
             </div>
             <div class="col-6">
+            <h1 class="display-6 text-white"><?php echo $mname; ?></h1>
                 <table class="table table-dark" CELLSPACING="2">
                     <tr>
                         <td style="width: 40%;">Torrent Name:</td> 
@@ -146,27 +147,73 @@ switch($file_name)
                     </tr>
                     <tr>
                         <td>Youtube Trailer:</td>
-                        <td><a href="#youtube"><img src="../images/youtube.png" alt="Youtube Icon" style="width: 15%;" title="Youtube"></a></td>
+                        <td><a href="#youtube"><img src="../images/youtube.png" alt="Youtube Icon" style="width: 33px; height:27px;" title="Youtube"></a></td>
+                    </tr>
+                    <tr>
+                        <td>Language:</td>
+                        <?php 
+                        $json = file_get_contents("languages.json");
+                        $decode = json_decode($json, TRUE);
+                
+                        foreach($decode as $lang){
+                            if($lang['alpha2']==$data['language']){?>
+                               <td><?php echo $lang['English']; ?></td>
+                           <?php }
+                        }
+                        ?>
                     </tr>
                     <tr>
                         <td><button class="btn btn-outline-success">Downloads: <?php echo $data['download_count'] ?></button></td>
-                        <td><button class="btn btn-outline-success"><?php echo $data['like_count'];?><img src="" alt=""></button></td>
+                        <td><button class="btn btn-outline-success"><img src="../images/like.png" alt="" style="height: 32px; padding-bottom: 4px;"> <?php echo $data['like_count'];?><img src="" alt=""></button></td>
                     </tr>
-                    <tr colspan="2">
-                        <td>Download Method:</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-outline-primary"><img src="../images/dwnlod.png" alt="" style="height: 30px; width: 30px;"> Direct Download</button></td>
-                        <td><button class="btn btn-outline-primary" title="Magnet Download"><img src="../images/magnet.png" alt="magnet_link" style="height: 30px; width: 30px;"> Magnet Download</button></td>
-                    </tr>
+                    <!-- <tr>
+                        <td><button class="btn btn-outline-primary bg-gradient"><img src="../images/dwnlod.png" alt="" style="height: 30px; width: 30px;"> Direct Download</button></td>
+                        <td><button class="btn btn-outline-primary bg-gradient" title="Magnet Download"><img src="../images/magnet.png" alt="magnet_link" style="height: 30px; width: 30px;"> Magnet Download</button></td>
+                    </tr> -->
                 </table>
+                <div class="tab text-white">
+                    <?php 
+                    foreach($torrents as $tab)
+                    {?>
+                        <button class="tablinks btn btn-primary bg-gradient" onclick="openCity(event, '<?php echo $tab['quality'] ?>')">Quality: <?php echo $tab['quality']; ?></button>
+                    <?php }
+                    ?>
+                </div>
+                <br>
+                <div class="text-white">
+
+                    <div class="row">
+                        <?php 
+                        foreach($torrents as $tab){?>
+                            <div id="<?php echo $tab['quality'] ?>" class="tabcontent col-4">
+                                <!-- <div class="justify-content">
+                                    <a href="magnet:?xt=urn:btih:<//?php echo $tab['hash']; ?>&dn=<//?php echo urlencode($data['title']) ?>&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=- udp://torrent.gresille.org:80/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969">
+                                    <button class="btn btn-primary"><//?php echo $tab['quality'];?> Magnet</button>
+                                    </a>
+                                </div> -->
+                                <div class="card text-white bg-dark" style="width: 18rem;">
+                                    <div class="card-body bg-gradient" >
+                                        <h5 class="card-title"><?php echo $tab['quality']; ?> Format</h5>
+                                        <p class="card-text">Size: <?php echo round($tab['size_bytes'] / 10**6 ,2) ?> Mb</p>
+                                        <span class="badge badge-primary">Se/Pe:<?php echo $tab['seeds']."/".$tab['peers']; ?></span>
+                                        <a class="badge badge-primary badge-pill" href="magnet:?xt=urn:btih:<?php echo $tab['hash']; ?>&dn=<?php echo urlencode($data['title']) ?>&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969" class="card-link">
+                                            Magnet link
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php  }
+                        
+                        ?>
+                    </div>
+                </div>
             </div>
         </div> 
         <!-- row ends here -->
         <hr class="text-white">
         <div class="fluid-container text-white">
             <h3>Description:</h3>
-            <p class="lead">
+            <p class="lead ">
                 <?php echo $data['description_full']; ?>
             </p>
         </div>
@@ -174,7 +221,7 @@ switch($file_name)
         <?php  
             if(!empty($data['yt_trailer_code']))
             {?>
-                <div class="iframe-container align-items-center" id="youtube" style="text-align: center;">
+                <div class="iframe-container embed-responsive-item mx-auto" id="youtube" >
 
                 </div>
             <?php }
@@ -204,7 +251,10 @@ switch($file_name)
           width: '640',
           videoId: '<?php echo $data['yt_trailer_code']; ?>',
           playerVars: {
-            'playsinline': 1
+            'playsinline': 1,
+            'showinfo': 0,
+            'rel': 0,
+            'ecver': 2
           },
           events: {
             'onReady': onPlayerReady,
@@ -224,7 +274,7 @@ switch($file_name)
       var done = false;
       function onPlayerStateChange(event) {
         if (event.data == YT.PlayerState.PLAYING && !done) {
-          setTimeout(stopVideo, 6000);
+          setTimeout(stopVideo,60000 );
           done = true;
         }
       }
@@ -232,6 +282,5 @@ switch($file_name)
         player.stopVideo();
       }
     </script>
-<script>
-    // $(".alert").alert('close')
-</script>
+
+

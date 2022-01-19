@@ -2,7 +2,7 @@
 include("constants.php");
 // echo LIST_MOVIES;
 
-$url = LIST_MOVIES."";
+$url = LIST_MOVIES."?limit=10";
 // echo $url;exit;
 $curl = curl_init();
 curl_setopt($curl, CURLOPT_URL, $url);
@@ -34,17 +34,33 @@ $data = $response['data']['movies'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../images/favicon.ico">
     <meta name="description" content="Download Movies Torrents">
+    <!-- <link rel="stylesheet" href="../Assets/darkmode.css"> -->
     <!-- Include CSS -->
     <link rel="stylesheet" href="../Assets/bs/css/bootstrap.min.css">
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"> -->
     <link rel="stylesheet" href="../Assets/bs/style.css">
     <!-- include font awesome -->
     <script src="https://use.fontawesome.com/d02afb5430.js"></script>
+    <!-- tawk.to -->
+    <!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/61e670fbf7cf527e84d2ae4b/1fpm2ilt0';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
     <title>YTS</title>
 </head>
 <body style="background-color: #CDFDB8;">
     <div class="container-fluid pt-2 ">
-
+      <!-- <button class="btn btn-success" onclick="toggle();">Toggle Mode</button> -->
+    <?php include 'loading.php'; ?>
         <nav class="navbar navbar-expand-lg navbar-light navbar-fixed-top " style="background-color: #e3f2fd;">
             <a class="navbar-brand" href="#">
                 <img src="../images/logo.png" alt="" width="100" height="70" srcset="">
@@ -98,7 +114,7 @@ echo $current_page;
                     foreach($data as $rows){ 
                       
                       ?>
-
+                        <a href="torrent.php?id=<?php echo $rows['id']; ?>">
                         <div class="carousel-item<?php if($cond == "TRUE"){echo " active";} ?> ">
                           <img class="img-thumbnail hover-zoom img-fluid rounded hover-overlay ripple shadow-1-strong" src="<?php echo $rows['medium_cover_image'] ?>" alt="First slide">
                           <div class="overlay">
@@ -111,6 +127,7 @@ echo $current_page;
                           </div>
 
                         </div>
+                    </a>
                <?php  
                
                    $cond = "FALSE";    }
@@ -197,10 +214,9 @@ echo $current_page;
 </body>
 </html>
 
-<script>
-$(document).ready(function(){
-  $("#login").click(function(){
-    $("#main-class").load("https://dev.smartcookie.in");
-  });
-});
-</script>
+<!-- <script>
+  function toggle() {
+    var element = document.body;
+    element.classList.toggle("dark-mode");
+}
+</script> -->
